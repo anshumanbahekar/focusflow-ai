@@ -18,19 +18,15 @@ const STATIC_ITEMS = [
 interface CommandPaletteProps { tasks?: Task[]; }
 
 export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
-  const [open, setOpen]     = useState(false);
-  const [query, setQuery]   = useState("");
+  const [open, setOpen]         = useState(false);
+  const [query, setQuery]       = useState("");
   const [selected, setSelected] = useState(0);
-  const router              = useRouter();
-  const inputRef            = useRef<HTMLInputElement>(null);
+  const router                  = useRouter();
+  const inputRef                = useRef<HTMLInputElement>(null);
 
-  // Open with Cmd+K
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault();
-        setOpen((p) => !p);
-      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setOpen((p) => !p); }
       if (e.key === "Escape") setOpen(false);
     };
     window.addEventListener("keydown", handler);
@@ -47,7 +43,7 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
     icon:  ListTodo,
     href:  `/tasks/${t.id}`,
     group: "Tasks",
-    meta:  t.priority,
+    meta:  t.priority as string,
   }));
 
   const allItems = [...STATIC_ITEMS, ...taskItems];
@@ -69,7 +65,6 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
     setOpen(false);
   }, [router]);
 
-  // Arrow key navigation
   useEffect(() => {
     if (!open) return;
     const handler = (e: KeyboardEvent) => {
@@ -99,7 +94,6 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
       <div className="relative w-full max-w-lg card-base shadow-2xl overflow-hidden">
-        {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3 border-b">
           <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <input
@@ -114,10 +108,9 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
           </button>
         </div>
 
-        {/* Results */}
         <div className="max-h-72 overflow-y-auto py-2">
           {flatFiltered.length === 0 ? (
-            <p className="text-center text-sm text-muted-foreground py-6">No results for "{query}"</p>
+            <p className="text-center text-sm text-muted-foreground py-6">No results for &quot;{query}&quot;</p>
           ) : (
             Object.entries(grouped).map(([group, items]) => (
               <div key={group}>
@@ -127,6 +120,7 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
                 {items.map((item) => {
                   const globalIdx = flatFiltered.indexOf(item);
                   const Icon = item.icon;
+                  const meta = "meta" in item ? (item.meta as string | undefined) : undefined;
                   return (
                     <button key={item.id}
                       onClick={() => navigate(item.href)}
@@ -140,8 +134,8 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
                         globalIdx === selected ? "text-brand-500" : "text-muted-foreground"
                       )} />
                       <span className="text-sm flex-1 truncate">{item.label}</span>
-                      {"meta" in item && item.meta && (
-                        <span className="text-[10px] text-muted-foreground">{item.meta}</span>
+                      {meta && (
+                        <span className="text-[10px] text-muted-foreground">{meta}</span>
                       )}
                     </button>
                   );
@@ -151,7 +145,6 @@ export function CommandPalette({ tasks = [] }: CommandPaletteProps) {
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-4 py-2 border-t flex items-center gap-4 text-[10px] text-muted-foreground">
           <span><kbd className="font-mono bg-muted px-1 rounded">↑↓</kbd> navigate</span>
           <span><kbd className="font-mono bg-muted px-1 rounded">↵</kbd> open</span>
