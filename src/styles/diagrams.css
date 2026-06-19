@@ -1,0 +1,38 @@
+/* ────────────────────────────────────────────────────────────
+   FocusFlow AI — shared SVG / Mermaid theme variables
+   Injected as <style> in SVG diagrams and Mermaid charts
+   ──────────────────────────────────────────────────────────── */
+
+svg {
+  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  font-size: 13px;
+}
+
+/* Node colour classes */
+.node.c-purple rect, .node.c-purple path  { fill: #EEEDFE; stroke: #AFA9EC; }
+.node.c-teal   rect, .node.c-teal   path  { fill: #E1F5EE; stroke: #9FE1CB; }
+.node.c-amber  rect, .node.c-amber  path  { fill: #FAEEDA; stroke: #FAC775; }
+.node.c-coral  rect, .node.c-coral  path  { fill: #FAECE7; stroke: #F4A98C; }
+.node.c-blue   rect, .node.c-blue   path  { fill: #E6F1FB; stroke: #A8CEED; }
+.node.c-gray   rect, .node.c-gray   path  { fill: #F2F2F0; stroke: #C2C0B6; }
+.node.c-red    rect, .node.c-red    path  { fill: #FCE8E8; stroke: #F4A8A8; }
+
+/* Text inside nodes */
+.th { font-weight: 600; font-size: 12px; fill: #1C1C1E; }
+.ts { font-weight: 400; font-size: 11px; fill: #73726C; }
+
+/* Border variable for lines */
+.var(--b) { stroke: #E8E7E3; }
+
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  .node.c-purple rect  { fill: #1C1840; stroke: #3C3489; }
+  .node.c-teal   rect  { fill: #04342C; stroke: #085041; }
+  .node.c-amber  rect  { fill: #412402; stroke: #633806; }
+  .node.c-coral  rect  { fill: #3A1508; stroke: #712B13; }
+  .node.c-blue   rect  { fill: #061E38; stroke: #0C447C; }
+  .node.c-gray   rect  { fill: #1C1C1E; stroke: #3D3D3A; }
+  .node.c-red    rect  { fill: #3A0808; stroke: #712B2B; }
+  .th  { fill: #E8E7E3; }
+  .ts  { fill: #9C9A92; }
+}
