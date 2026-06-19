@@ -49,7 +49,7 @@ export default function OnboardingPage() {
     const hours = WORK_HOUR_MAP[workStyle];
     const p     = POMODORO_PRESETS[preset];
 
-    await supabase.from("users").update({
+    await (supabase as any).from("users").update({
       full_name: name || undefined,
       preferences: {
         work_start_hour:            hours.start,
