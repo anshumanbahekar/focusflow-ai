@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { db, type UserRow, type TaskRow, type SessionRow, type DailyScoreRow } from "@/lib/supabase/types";
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
@@ -7,19 +8,22 @@ export async function GET(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const format = searchParams.get("format") ?? "json"; // "json" | "csv"
+  const format = searchParams.get("format") ?? "json";
 
-  // Fetch all user data
   const [
     { data: tasks },
     { data: sessions },
     { data: scores },
     { data: profile },
   ] = await Promise.all([
-    supabase.from("tasks").select("*, subtasks(*)").eq("user_id", user.id).order("created_at"),
-    supabase.from("focus_sessions").select("*").eq("user_id", user.id).order("started_at"),
-    supabase.from("daily_scores").select("*").eq("user_id", user.id).order("date"),
-    supabase.from("users").select("*").eq("id", user.id).single(),
+    db(supabase).from("tasks").select("*, subtasks(*)").eq("user_id", user.id).order("created_at") as
+      Promise<{ data: TaskRow[] | null }>,
+    db(supabase).from("focus_sessions").select("*").eq("user_id", user.id).order("started_at") as
+      Promise<{ data: SessionRow[] | null }>,
+    db(supabase).from("daily_scores").select("*").eq("user_id", user.id).order("date") as
+      Promise<{ data: DailyScoreRow[] | null }>,
+    db(supabase).from("users").select("*").eq("id", user.id).single() as
+      Promise<{ data: UserRow | null }>,
   ]);
 
   const exportData = {
@@ -36,7 +40,6 @@ export async function GET(req: NextRequest) {
   };
 
   if (format === "csv") {
-    // Build CSV for sessions
     const headers = ["date","task_id","duration_minutes","actual_minutes","status","focus_score","interruptions"];
     const rows = (sessions ?? []).map((s) => [
       s.started_at.split("T")[0],

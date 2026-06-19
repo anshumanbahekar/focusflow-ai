@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import webpush from "web-push";
+import { db, type UserRow } from "@/lib/supabase/types";
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT!,
@@ -8,7 +9,6 @@ webpush.setVapidDetails(
   process.env.VAPID_PRIVATE_KEY!
 );
 
-// Store subscriptions in Supabase users table (preferences.push_subscription)
 export async function POST(req: NextRequest) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -17,13 +17,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { action } = body;
 
-  // Save push subscription
   if (action === "subscribe") {
     const { subscription } = body;
-    const { data: profile } = await supabase
-      .from("users").select("preferences").eq("id", user.id).single();
+    const { data: profile } = await db(supabase)
+      .from("users").select("preferences").eq("id", user.id).single() as { data: Pick<UserRow, "preferences"> | null };
 
-    await supabase.from("users").update({
+    await db(supabase).from("users").update({
       preferences: {
         ...(profile?.preferences ?? {}),
         push_subscription: subscription,
@@ -33,15 +32,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  // Send a test notification
   if (action === "test") {
-    const { data: profile } = await supabase
-      .from("users").select("preferences").eq("id", user.id).single();
+    const { data: profile } = await db(supabase)
+      .from("users").select("preferences").eq("id", user.id).single() as { data: Pick<UserRow, "preferences"> | null };
 
     const sub = profile?.preferences?.push_subscription;
     if (!sub) return NextResponse.json({ error: "No subscription" }, { status: 400 });
 
-    await webpush.sendNotification(sub, JSON.stringify({
+    await webpush.sendNotification(sub as webpush.PushSubscription, JSON.stringify({
       title: "FocusFlow AI 🎯",
       body:  "Notifications are working! Time to focus.",
       icon:  "/icon-192.png",
@@ -50,11 +48,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
-  // Send session-end notification (called server-side)
   if (action === "session_complete") {
     const { user_id, session_type } = body;
-    const { data: profile } = await supabase
-      .from("users").select("preferences").eq("id", user_id).single();
+    const { data: profile } = await db(supabase)
+      .from("users").select("preferences").eq("id", user_id).single() as { data: Pick<UserRow, "preferences"> | null };
 
     const sub = profile?.preferences?.push_subscription;
     if (!sub) return NextResponse.json({ skipped: true });
@@ -67,9 +64,9 @@ export async function POST(req: NextRequest) {
 
     const msg = messages[session_type] ?? messages.focus_end;
 
-    await webpush.sendNotification(sub, JSON.stringify({
+    await webpush.sendNotification(sub as webpush.PushSubscription, JSON.stringify({
       ...msg,
-      icon: "/icon-192.png",
+      icon:  "/icon-192.png",
       badge: "/icon-192.png",
     }));
 
