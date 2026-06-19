@@ -54,11 +54,12 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Fetch user prefs for context ─────────────────────────────
+    // Cast needed: no generated Supabase types, so supabase-js infers `never` without it
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: profile } = await (supabase as any)
       .from("users").select("preferences").eq("id", user.id).single() as
-      { data: { preferences: Record<string, number | string | boolean | null> } | null };
-    const prefs = profile?.preferences;
+      { data: { preferences: Record<string, unknown> } | null };
+    const prefs = profile?.preferences as Record<string, number> | undefined;
 
     const userMessage = `
 Task: ${task_title}
