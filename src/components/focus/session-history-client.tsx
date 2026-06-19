@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Timer, Filter, TrendingUp, Clock, Zap } from "lucide-react";
 import type { FocusSession } from "@/types";
-import { formatDate, formatTime, formatMinutes as fmtDate } from "@/lib/utils/date";
+import { formatDate, formatTime } from "@/lib/utils/date";
 import { formatMinutes } from "@/lib/utils/score";
 import { cn } from "@/lib/utils/cn";
 
