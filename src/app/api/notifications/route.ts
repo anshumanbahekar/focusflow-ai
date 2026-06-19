@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     const sub = profile?.preferences?.push_subscription;
     if (!sub) return NextResponse.json({ error: "No subscription" }, { status: 400 });
 
-    await webpush.sendNotification(sub as webpush.PushSubscription, JSON.stringify({
+    await webpush.sendNotification(sub as unknown as webpush.PushSubscription, JSON.stringify({
       title: "FocusFlow AI 🎯",
       body:  "Notifications are working! Time to focus.",
       icon:  "/icon-192.png",
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     const msg = messages[session_type] ?? messages.focus_end;
 
-    await webpush.sendNotification(sub as webpush.PushSubscription, JSON.stringify({
+    await webpush.sendNotification(sub as unknown as webpush.PushSubscription, JSON.stringify({
       ...msg,
       icon:  "/icon-192.png",
       badge: "/icon-192.png",
