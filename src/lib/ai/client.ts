@@ -21,10 +21,6 @@ export const GROQ_MODEL        = "llama-3.3-70b-versatile";
 export const AI_MAX_TOKENS     = 1500;
 
 // ── Quota / rate-limit error detection ───────
-export function hasAnthropicKey(): boolean {
-  return !!process.env.ANTHROPIC_API_KEY;
-}
-
 export function isQuotaError(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const e = err as { status?: number; message?: string };

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
-  getAnthropicClient, getGroqClient,
+  getAnthropicClient, getGroqClient, hasAnthropicKey,
   ANTHROPIC_MODEL, GROQ_MODEL, AI_MAX_TOKENS,
   DECOMPOSE_SYSTEM_PROMPT, buildDecomposeCacheKey, isQuotaError,
 } from "@/lib/ai/client";
@@ -62,8 +62,9 @@ Please decompose this task into focused subtasks.`.trim();
     let raw = "";
 
     try {
-      // Primary: Anthropic
-      const anthropic = getAnthropicClient();
+  // Primary: Anthropic
+  if (!hasAnthropicKey()) throw { status: 429, message: "no key" };
+  const anthropic = getAnthropicClient();
       const message   = await anthropic.messages.create({
         model:      ANTHROPIC_MODEL,
         max_tokens: AI_MAX_TOKENS,
