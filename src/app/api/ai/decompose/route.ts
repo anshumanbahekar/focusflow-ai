@@ -2,14 +2,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   getAnthropicClient, getGroqClient,
+  hasAnthropicKey, shouldFallbackToGroq,
   ANTHROPIC_MODEL, GROQ_MODEL, AI_MAX_TOKENS,
-  DECOMPOSE_SYSTEM_PROMPT, buildDecomposeCacheKey, isQuotaError,
+  DECOMPOSE_SYSTEM_PROMPT, buildDecomposeCacheKey,
 } from "@/lib/ai/client";
 import { aiRatelimit, checkRateLimit, cacheAIResponse, getCachedAIResponse } from "@/lib/utils/rate-limit";
 import type { AIDecomposeRequest, AIDecomposeResponse } from "@/types";
 
-export const runtime     = "nodejs";
+export const runtime    = "nodejs";
 export const maxDuration = 30;
+
+function parseAIResponse(raw: string): AIDecomposeResponse {
+  // Strip <think>...</think> blocks (some reasoning models emit these)
+  const stripped = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  // Strip markdown code fences
+  const clean = stripped.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,11 +36,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── Parse body ──────────────────────────────────────────────
+    // ── Parse & validate body ────────────────────────────────────
     const body = (await req.json()) as AIDecomposeRequest;
     const { task_title, task_description, deadline, priority, user_context } = body;
-    if (!task_title?.trim())
+
+    if (!task_title?.trim()) {
       return NextResponse.json({ error: "task_title is required" }, { status: 400 });
+    }
 
     // ── Cache check ─────────────────────────────────────────────
     const cacheKey = buildDecomposeCacheKey(task_title, task_description ?? "");
@@ -42,7 +53,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ── Fetch user profile ───────────────────────────────────────
+    // ── Fetch user prefs for context ─────────────────────────────
     const { data: profile } = await supabase
       .from("users").select("preferences").eq("id", user.id).single();
     const prefs = profile?.preferences;
@@ -61,30 +72,36 @@ Please decompose this task into focused subtasks.`.trim();
     // ── Call AI with Anthropic → Groq fallback ───────────────────
     let raw = "";
 
-    try {
-      // Primary: Anthropic
+    const tryAnthropic = async () => {
+      if (!hasAnthropicKey()) throw { status: 429, message: "no key" };
       const anthropic = getAnthropicClient();
-      const message   = await anthropic.messages.create({
+      const msg = await anthropic.messages.create({
         model:      ANTHROPIC_MODEL,
         max_tokens: AI_MAX_TOKENS,
         system:     DECOMPOSE_SYSTEM_PROMPT,
         messages:   [{ role: "user", content: userMessage }],
       });
-      raw = message.content[0].type === "text" ? message.content[0].text : "";
+      return msg.content[0].type === "text" ? msg.content[0].text : "";
+    };
+
+    const tryGroq = async () => {
+      const groq = getGroqClient();
+      const completion = await groq.chat.completions.create({
+        model:      GROQ_MODEL,
+        max_tokens: AI_MAX_TOKENS,
+        messages: [
+          { role: "system", content: DECOMPOSE_SYSTEM_PROMPT },
+          { role: "user",   content: userMessage },
+        ],
+      });
+      return completion.choices[0]?.message?.content ?? "";
+    };
+
+    try {
+      raw = await tryAnthropic();
     } catch (err) {
-      if (isQuotaError(err)) {
-        // Fallback: Groq
-        console.warn("[decompose] Anthropic quota exceeded, falling back to Groq");
-        const groq    = getGroqClient();
-        const message = await groq.chat.completions.create({
-          model:      GROQ_MODEL,
-          max_tokens: AI_MAX_TOKENS,
-          messages: [
-            { role: "system", content: DECOMPOSE_SYSTEM_PROMPT },
-            { role: "user",   content: userMessage },
-          ],
-        });
-        raw = message.choices[0]?.message?.content ?? "";
+      if (shouldFallbackToGroq(err)) {
+        raw = await tryGroq();
       } else {
         throw err;
       }
@@ -93,17 +110,18 @@ Please decompose this task into focused subtasks.`.trim();
     // ── Parse JSON ───────────────────────────────────────────────
     let parsed: AIDecomposeResponse;
     try {
-      const clean = raw.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```json|```/g, "").trim();
-      parsed = JSON.parse(clean);
+      parsed = parseAIResponse(raw);
     } catch {
       return NextResponse.json({ error: "AI returned invalid JSON", raw }, { status: 502 });
     }
 
-    if (!Array.isArray(parsed.subtasks) || parsed.subtasks.length === 0)
+    if (!Array.isArray(parsed.subtasks) || parsed.subtasks.length === 0) {
       return NextResponse.json({ error: "AI returned empty subtasks" }, { status: 502 });
+    }
 
     // ── Cache & return ───────────────────────────────────────────
     await cacheAIResponse(cacheKey, parsed);
+
     return NextResponse.json({ data: parsed, cached: false }, {
       headers: { "X-RateLimit-Remaining": String(remaining) },
     });

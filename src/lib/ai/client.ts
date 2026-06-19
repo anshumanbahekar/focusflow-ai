@@ -1,40 +1,60 @@
-import Groq from "groq-sdk";
 import Anthropic from "@anthropic-ai/sdk";
+import Groq from "groq-sdk";
 
-// ── Groq Singleton ───────────────────────────
-let _groq: Groq | null = null;
-export function getGroqClient(): Groq {
-  if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
-  return _groq;
-}
-
-// ── Anthropic Singleton ──────────────────────
+// ── Singletons ────────────────────────────────────────────────────
 let _anthropic: Anthropic | null = null;
+let _groq: Groq | null = null;
+
 export function getAnthropicClient(): Anthropic {
-  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  if (!_anthropic) {
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  }
   return _anthropic;
 }
 
-// ── Models ───────────────────────────────────
+export function getGroqClient(): Groq {
+  if (!_groq) {
+    _groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+  }
+  return _groq;
+}
+
+// ── Key checks ────────────────────────────────────────────────────
+export function hasAnthropicKey(): boolean {
+  return !!process.env.ANTHROPIC_API_KEY;
+}
+
+export function hasGroqKey(): boolean {
+  return !!process.env.GROQ_API_KEY;
+}
+
+// ── Models ────────────────────────────────────────────────────────
 export const ANTHROPIC_MODEL   = "claude-sonnet-4-6";
-export const GROQ_MODEL        = "llama-3.3-70b-versatile";
+export const GROQ_MODEL        = "llama-3.3-70b-versatile";  // Fast, smart, no <think> blocks
 export const AI_MAX_TOKENS     = 1500;
 
-// ── Quota / rate-limit error detection ───────
-export function isQuotaError(err: unknown): boolean {
+// ── Fallback detector ─────────────────────────────────────────────
+// Returns true when Anthropic should be skipped and Groq used instead
+export function shouldFallbackToGroq(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
-  const e = err as { status?: number; message?: string };
-  // Anthropic: 429 = rate limit / quota
-  // Also catch "credit balance" or "quota" messages
-  if (e.status === 429) return true;
+  const e = err as Record<string, unknown>;
+  // Quota / rate limit / no key / overload
+  if (e.status === 429 || e.status === 529) return true;
   if (typeof e.message === "string") {
     const msg = e.message.toLowerCase();
-    return msg.includes("quota") || msg.includes("credit") || msg.includes("rate limit") || msg.includes("overloaded");
+    if (
+      msg.includes("quota") ||
+      msg.includes("credit") ||
+      msg.includes("overloaded") ||
+      msg.includes("rate limit") ||
+      msg.includes("no key") ||
+      msg.includes("billing")
+    ) return true;
   }
   return false;
 }
 
-/** System prompt for task decomposition */
+// ── System prompt: task decomposition ─────────────────────────────
 export const DECOMPOSE_SYSTEM_PROMPT = `You are an expert productivity coach and task planner embedded in FocusFlow AI.
 Your job is to break down a user's task or goal into clear, actionable subtasks that can each be completed in one focused Pomodoro session (15–45 minutes).
 
@@ -44,7 +64,7 @@ Rules:
 - Order subtasks logically (dependencies first)
 - Keep subtask titles under 60 characters
 - Provide a brief rationale for each subtask
-- Return ONLY valid JSON matching the schema below — no markdown, no extra text
+- Return ONLY valid JSON matching the schema below — no markdown, no extra text, no preamble
 
 Response schema:
 {
@@ -62,34 +82,33 @@ Response schema:
   "tips": ["string", "string", "string"]
 }`;
 
-/** System prompt for focus coach */
-export const COACH_SYSTEM_PROMPT = `You are an advanced AI focus coach embedded in FocusFlow AI — intelligent, direct, and genuinely helpful.
+// ── System prompt: focus coach ────────────────────────────────────
+export const COACH_SYSTEM_PROMPT = `You are an expert focus coach and study assistant inside FocusFlow AI — smart, direct, and genuinely helpful.
 
-You have two modes depending on what the user asks:
+You have two modes depending on the user's message:
 
-MODE 1 — DIRECT ANSWER (use when user asks a factual, math, coding, or subject question):
-- Answer completely and correctly first
-- Show full working for math (step by step)
-- Show correct code for programming questions
-- After answering, optionally add one short coaching nudge
-- Never dodge a direct question by asking them to figure it out themselves
+MODE 1 — ANSWER MODE (when user asks a factual, technical, or conceptual question):
+- Answer it fully and correctly FIRST before any coaching
+- For math: show the full working, not just the answer
+- For code: give the actual code, not a description
+- For concepts: explain clearly with an example
+- Never ask the user to solve something you can already answer
+- After answering, briefly connect it back to their task if relevant
 
-MODE 2 — COACHING (use when user is distracted, stuck, or needs motivation):
-- Be warm, direct, and brief (under 3 sentences)
-- Be actionable, not generic
+MODE 2 — COACH MODE (when user is distracted, stuck, or needs motivation):
+- Be warm but direct — like a sharp friend, not a corporate chatbot
+- Give ONE specific, actionable next step — not vague advice
 - Reference their actual task and context
-- Suggest a concrete micro-step if they're stuck
-- Use grounding techniques if they're distracted
+- Use grounding techniques if they're overwhelmed
+- Keep it under 3 sentences unless they need more
 
-Rules that always apply:
-- Sound like a brilliant friend who is also a great tutor — not a corporate chatbot
-- Never use filler phrases like "Great question!" or "Certainly!"
-- For math: always show the complete solution with proper notation (use ^ for powers, * for multiply)
-- For code: always show complete working code in a code block
-- Keep coaching responses short; keep answer responses as long as they need to be
-- Never ask the user to solve something you can answer directly`;
+Always:
+- Sound human, never robotic
+- Never use bullet points unless showing math steps or code
+- Never say "Great question!" or use filler phrases
+- Reference their task title and elapsed time when relevant`;
 
-/** Build a stable cache key for decompose requests */
+// ── Cache key builder ─────────────────────────────────────────────
 export function buildDecomposeCacheKey(title: string, description: string): string {
   const str = `${title.trim().toLowerCase()}::${(description ?? "").trim().toLowerCase()}`;
   let h = 0;
