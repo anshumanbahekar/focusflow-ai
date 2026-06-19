@@ -8,7 +8,7 @@ const nextConfig = {
     ],
   },
   experimental: {
-    serverComponentsExternalPackages: ["@anthropic-ai/sdk"],
+    serverComponentsExternalPackages: ["@anthropic-ai/sdk", "groq-sdk"],
   },
 };
 
