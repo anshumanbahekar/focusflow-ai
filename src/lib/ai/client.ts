@@ -1,17 +1,38 @@
 import Groq from "groq-sdk";
+import Anthropic from "@anthropic-ai/sdk";
 
-// Singleton
-let _client: Groq | null = null;
-
+// ── Groq Singleton ───────────────────────────
+let _groq: Groq | null = null;
 export function getGroqClient(): Groq {
-  if (!_client) {
-    _client = new Groq({ apiKey: process.env.GROQ_API_KEY! });
-  }
-  return _client;
+  if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY! });
+  return _groq;
 }
 
-export const AI_MODEL      = "llama-3.3-70b-versatile";
-export const AI_MAX_TOKENS = 1500;
+// ── Anthropic Singleton ──────────────────────
+let _anthropic: Anthropic | null = null;
+export function getAnthropicClient(): Anthropic {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  return _anthropic;
+}
+
+// ── Models ───────────────────────────────────
+export const ANTHROPIC_MODEL   = "claude-sonnet-4-6";
+export const GROQ_MODEL        = "llama-3.3-70b-versatile";
+export const AI_MAX_TOKENS     = 1500;
+
+// ── Quota / rate-limit error detection ───────
+export function isQuotaError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const e = err as { status?: number; message?: string };
+  // Anthropic: 429 = rate limit / quota
+  // Also catch "credit balance" or "quota" messages
+  if (e.status === 429) return true;
+  if (typeof e.message === "string") {
+    const msg = e.message.toLowerCase();
+    return msg.includes("quota") || msg.includes("credit") || msg.includes("rate limit") || msg.includes("overloaded");
+  }
+  return false;
+}
 
 /** System prompt for task decomposition */
 export const DECOMPOSE_SYSTEM_PROMPT = `You are an expert productivity coach and task planner embedded in FocusFlow AI.

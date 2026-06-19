@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { getGroqClient, AI_MODEL, AI_MAX_TOKENS, DECOMPOSE_SYSTEM_PROMPT, buildDecomposeCacheKey } from "@/lib/ai/client";
+import {
+  getAnthropicClient, getGroqClient,
+  ANTHROPIC_MODEL, GROQ_MODEL, AI_MAX_TOKENS,
+  DECOMPOSE_SYSTEM_PROMPT, buildDecomposeCacheKey, isQuotaError,
+} from "@/lib/ai/client";
 import { aiRatelimit, checkRateLimit, cacheAIResponse, getCachedAIResponse } from "@/lib/utils/rate-limit";
 import type { AIDecomposeRequest, AIDecomposeResponse } from "@/types";
 
@@ -26,10 +30,8 @@ export async function POST(req: NextRequest) {
     // ── Parse body ──────────────────────────────────────────────
     const body = (await req.json()) as AIDecomposeRequest;
     const { task_title, task_description, deadline, priority, user_context } = body;
-
-    if (!task_title?.trim()) {
+    if (!task_title?.trim())
       return NextResponse.json({ error: "task_title is required" }, { status: 400 });
-    }
 
     // ── Cache check ─────────────────────────────────────────────
     const cacheKey = buildDecomposeCacheKey(task_title, task_description ?? "");
@@ -40,12 +42,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ── Fetch user profile for context ──────────────────────────
+    // ── Fetch user profile ───────────────────────────────────────
     const { data: profile } = await supabase
       .from("users").select("preferences").eq("id", user.id).single();
     const prefs = profile?.preferences;
 
-    // ── Build user message ───────────────────────────────────────
     const userMessage = `
 Task: ${task_title}
 Description: ${task_description || "No description provided"}
@@ -57,38 +58,52 @@ User context:
 
 Please decompose this task into focused subtasks.`.trim();
 
-    // ── Call Groq ────────────────────────────────────────────────
-    const groq    = getGroqClient();
-    const message = await groq.chat.completions.create({
-      model:      AI_MODEL,
-      max_tokens: AI_MAX_TOKENS,
-      messages: [
-        { role: "system", content: DECOMPOSE_SYSTEM_PROMPT },
-        { role: "user",   content: userMessage },
-      ],
-    });
+    // ── Call AI with Anthropic → Groq fallback ───────────────────
+    let raw = "";
 
-    // Strip <think>...</think> block that deepseek-r1 emits before JSON
-    let raw = message.choices[0]?.message?.content ?? "";
-    raw = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    try {
+      // Primary: Anthropic
+      const anthropic = getAnthropicClient();
+      const message   = await anthropic.messages.create({
+        model:      ANTHROPIC_MODEL,
+        max_tokens: AI_MAX_TOKENS,
+        system:     DECOMPOSE_SYSTEM_PROMPT,
+        messages:   [{ role: "user", content: userMessage }],
+      });
+      raw = message.content[0].type === "text" ? message.content[0].text : "";
+    } catch (err) {
+      if (isQuotaError(err)) {
+        // Fallback: Groq
+        console.warn("[decompose] Anthropic quota exceeded, falling back to Groq");
+        const groq    = getGroqClient();
+        const message = await groq.chat.completions.create({
+          model:      GROQ_MODEL,
+          max_tokens: AI_MAX_TOKENS,
+          messages: [
+            { role: "system", content: DECOMPOSE_SYSTEM_PROMPT },
+            { role: "user",   content: userMessage },
+          ],
+        });
+        raw = message.choices[0]?.message?.content ?? "";
+      } else {
+        throw err;
+      }
+    }
 
-    // ── Parse JSON response ──────────────────────────────────────
+    // ── Parse JSON ───────────────────────────────────────────────
     let parsed: AIDecomposeResponse;
     try {
-      const clean = raw.replace(/```json|```/g, "").trim();
+      const clean = raw.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/```json|```/g, "").trim();
       parsed = JSON.parse(clean);
     } catch {
       return NextResponse.json({ error: "AI returned invalid JSON", raw }, { status: 502 });
     }
 
-    // ── Validate structure ───────────────────────────────────────
-    if (!Array.isArray(parsed.subtasks) || parsed.subtasks.length === 0) {
+    if (!Array.isArray(parsed.subtasks) || parsed.subtasks.length === 0)
       return NextResponse.json({ error: "AI returned empty subtasks" }, { status: 502 });
-    }
 
-    // ── Cache result ─────────────────────────────────────────────
+    // ── Cache & return ───────────────────────────────────────────
     await cacheAIResponse(cacheKey, parsed);
-
     return NextResponse.json({ data: parsed, cached: false }, {
       headers: { "X-RateLimit-Remaining": String(remaining) },
     });
