@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
-  getAnthropicClient, getGroqClient, hasAnthropicKey,
+  getAnthropicClient, getGroqClient,
   ANTHROPIC_MODEL, GROQ_MODEL,
   COACH_SYSTEM_PROMPT, isQuotaError,
 } from "@/lib/ai/client";
@@ -80,9 +80,8 @@ Current session context:
   const stream = new ReadableStream({
     async start(controller) {
       try {
-  if (!hasAnthropicKey()) throw { status: 429, message: "no key" };
-  await anthropicStream(controller);
-} catch (err) {
+        await anthropicStream(controller);
+      } catch (err) {
         if (isQuotaError(err)) {
           // Anthropic quota hit — silently fall back to Groq
           console.warn("[coach] Anthropic quota exceeded, falling back to Groq");
