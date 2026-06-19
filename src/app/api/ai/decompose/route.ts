@@ -67,7 +67,7 @@ Priority: ${priority}
 Deadline: ${deadline || "None specified"}
 User context:
   - Average session length: ${user_context?.avg_session_length ?? prefs?.pomodoro_duration ?? 25} minutes
-  - Working hours per day: ${user_context?.working_hours_per_day ?? ((prefs?.work_end_hour ?? 18) - (prefs?.work_start_hour ?? 9))} hours
+  - Working hours per day: ${user_context?.working_hours_per_day ?? ((Number(prefs?.work_end_hour) || 18) - (Number(prefs?.work_start_hour) || 9))} hours
 
 Please decompose this task into focused subtasks.`.trim();
 
