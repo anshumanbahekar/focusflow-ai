@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       {
         cookies: {
           getAll:  () => cookieStore.getAll(),
-          setAll:  (c) => c.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
+          setAll:  (c: { name: string; value: string; options?: Record<string, unknown> }[]) => c.forEach(({ name, value, options }) => cookieStore.set(name, value, options)),
         },
       }
     );
@@ -24,3 +24,4 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.redirect(`${origin}${redirectTo}`);
 }
+
