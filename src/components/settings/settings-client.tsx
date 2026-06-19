@@ -50,7 +50,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     setSaving(true);
     const supabase2 = createClient();
     await supabase2
-      .from("users")
+      .from("users" as any)
       .update({ full_name: fullName, preferences: prefs })
       .eq("id", profile!.id);
     setSaving(false);
