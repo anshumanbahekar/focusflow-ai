@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { SessionHistoryClient } from "@/components/focus/session-history-client";
+import type { FocusSession } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Session History" };
@@ -16,7 +17,7 @@ export default async function SessionHistoryPage() {
     .select("*, tasks(title, priority)")
     .eq("user_id", user.id)
     .order("started_at", { ascending: false })
-    .limit(100);
+    .limit(100) as { data: FocusSession[] | null };
 
   return <SessionHistoryClient sessions={sessions ?? []} />;
 }

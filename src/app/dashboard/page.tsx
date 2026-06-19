@@ -1,13 +1,14 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ScoreRing }        from "@/components/dashboard/score-ring";
-import { StatsGrid }        from "@/components/dashboard/stats-grid";
-import { TodayTasks }       from "@/components/dashboard/today-tasks";
-import { WeekChart }        from "@/components/dashboard/week-chart";
-import { QuickStartCard }   from "@/components/dashboard/quick-start-card";
-import { StreakBadge }      from "@/components/dashboard/streak-badge";
-import { todayISO }         from "@/lib/utils/date";
+import { ScoreRing }      from "@/components/dashboard/score-ring";
+import { StatsGrid }      from "@/components/dashboard/stats-grid";
+import { TodayTasks }     from "@/components/dashboard/today-tasks";
+import { WeekChart }      from "@/components/dashboard/week-chart";
+import { QuickStartCard } from "@/components/dashboard/quick-start-card";
+import { StreakBadge }    from "@/components/dashboard/streak-badge";
+import { todayISO }       from "@/lib/utils/date";
 import { computeStreak, weeklyAverage } from "@/lib/utils/score";
+import type { DailyScore, Task, UserPreferences } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Dashboard" };
@@ -20,7 +21,6 @@ export default async function DashboardPage() {
 
   const today = todayISO();
 
-  // Parallel data fetching
   const [
     { data: todayScore },
     { data: weekScores },
@@ -33,17 +33,22 @@ export default async function DashboardPage() {
     supabase.from("tasks").select("*, subtasks(*)").eq("user_id", user.id).in("status", ["todo","in_progress"]).order("created_at", { ascending: false }).limit(5),
     supabase.from("focus_sessions").select("*").eq("user_id", user.id).gte("started_at", `${today}T00:00:00Z`),
     supabase.from("users").select("*").eq("id", user.id).single(),
-  ]);
+  ]) as [
+    { data: DailyScore | null },
+    { data: DailyScore[] | null },
+    { data: Task[] | null },
+    { data: { status: string }[] | null },
+    { data: { preferences: UserPreferences } | null },
+  ];
 
-  const scores      = weekScores ?? [];
-  const streak      = computeStreak(scores);
-  const weekAvg     = weeklyAverage(scores);
-  const focusScore  = todayScore?.focus_score ?? 0;
-  const sessionsToday = todaySessions?.filter((s) => s.status === "completed").length ?? 0;
+  const scores        = weekScores ?? [];
+  const streak        = computeStreak(scores);
+  const weekAvg       = weeklyAverage(scores);
+  const focusScore    = todayScore?.focus_score ?? 0;
+  const sessionsToday = (todaySessions ?? []).filter((s) => s.status === "completed").length;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Top row: score + streak + quick start */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 flex flex-col gap-4">
           <ScoreRing score={focusScore} label="Today's focus score" />
@@ -58,7 +63,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats row */}
       <StatsGrid
         sessionsToday={sessionsToday}
         goalSessions={profile?.preferences?.daily_goal_sessions ?? 8}
@@ -67,7 +71,6 @@ export default async function DashboardPage() {
         tasksCompleted={todayScore?.tasks_completed ?? 0}
       />
 
-      {/* Bottom row: weekly chart + task list */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
           <WeekChart scores={scores} />

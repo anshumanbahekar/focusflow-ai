@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AdvancedAnalyticsClient } from "@/components/analytics/advanced-analytics-client";
+import type { DailyScore, FocusSession, Task } from "@/types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Advanced Analytics" };
@@ -18,7 +19,11 @@ export default async function AdvancedAnalyticsPage() {
       .eq("status", "completed").order("started_at", { ascending: false }).limit(200),
     supabase.from("tasks").select("id, status, priority, estimated_minutes, created_at")
       .eq("user_id", user.id),
-  ]);
+  ]) as [
+    { data: DailyScore[] | null },
+    { data: FocusSession[] | null },
+    { data: Pick<Task, "id"|"status"|"priority"|"estimated_minutes"|"created_at">[] | null },
+  ];
 
   return (
     <AdvancedAnalyticsClient

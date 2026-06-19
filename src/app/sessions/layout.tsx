@@ -2,12 +2,16 @@ import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader }  from "@/components/layout/app-header";
+import type { User } from "@/types";
 
 export default async function SessionsLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
-  const { data: profile } = await supabase.from("users").select("*").eq("id", user.id).single();
+
+  const { data: profile } = await supabase
+    .from("users").select("*").eq("id", user.id).single() as { data: User | null };
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       <AppSidebar user={profile} />
