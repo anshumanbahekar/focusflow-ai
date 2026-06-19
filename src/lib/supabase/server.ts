@@ -1,12 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyDB = { [key: string]: { Row: any; Insert: any; Update: any } };
-
+// No <Database> generic — avoids `never` inference on ungenerated types.
+// All query results are typed via explicit `as` casts in each route/page.
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
-  return createServerClient<AnyDB>(
+
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -20,7 +20,7 @@ export async function createServerSupabaseClient() {
               cookieStore.set(name, value, options)
             );
           } catch {
-            // Server component - cookies set by middleware
+            // Server component — cookies set by middleware
           }
         },
       },
