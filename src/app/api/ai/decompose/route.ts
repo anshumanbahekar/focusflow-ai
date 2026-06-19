@@ -54,8 +54,10 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Fetch user prefs for context ─────────────────────────────
-    const { data: profile } = await supabase
-      .from("users").select("preferences").eq("id", user.id).single();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: profile } = await (supabase as any)
+      .from("users").select("preferences").eq("id", user.id).single() as
+      { data: { preferences: Record<string, number | string | boolean | null> } | null };
     const prefs = profile?.preferences;
 
     const userMessage = `
