@@ -36,10 +36,10 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     ...(profile?.preferences ?? {}),
   };
 
-  const [prefs, setPrefs]     = useState<UserPreferences>(defaults);
+  const [prefs, setPrefs]       = useState<UserPreferences>(defaults);
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
-  const [saving, setSaving]   = useState(false);
-  const [saved, setSaved]     = useState(false);
+  const [saving, setSaving]     = useState(false);
+  const [saved, setSaved]       = useState(false);
 
   const update = <K extends keyof UserPreferences>(key: K, val: UserPreferences[K]) => {
     setPrefs((p) => ({ ...p, [key]: val }));
@@ -48,9 +48,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
 
   const handleSave = async () => {
     setSaving(true);
-    const supabase2 = createClient();
-    await supabase2
-      .from("users" as any)
+    const db = createClient() as any;
+    await db
+      .from("users")
       .update({ full_name: fullName, preferences: prefs })
       .eq("id", profile!.id);
     setSaving(false);
