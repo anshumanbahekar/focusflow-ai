@@ -15,14 +15,14 @@ export function useActiveSession() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setLoading(false); return; }
 
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("focus_sessions")
       .select("*")
       .eq("user_id", user.id)
       .in("status", ["focusing","break","paused"])
       .order("started_at", { ascending: false })
       .limit(1)
-      .maybeSingle();
+      .maybeSingle() as { data: FocusSession | null };
 
     setSession(data ?? null);
     if (data) {
@@ -35,7 +35,6 @@ export function useActiveSession() {
   useEffect(() => {
     fetchActive();
 
-    // Realtime subscription
     const channel = supabase.channel("active-session")
       .on("postgres_changes", {
         event: "*", schema: "public", table: "focus_sessions",
@@ -45,7 +44,6 @@ export function useActiveSession() {
     return () => { supabase.removeChannel(channel); };
   }, [fetchActive, supabase]);
 
-  // Tick elapsed counter when focusing
   useEffect(() => {
     if (session?.status === "focusing") {
       tickRef.current = setInterval(() => setElapsed((p) => p + 1), 1000);
