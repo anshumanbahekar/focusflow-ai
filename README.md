@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/focusflow-ai.png" alt="FocusFlow AI" width="120" height="120" />
+<img src="public/icon-192.png" alt="FocusFlow AI" width="80" height="80" />
 
 # FocusFlow AI
 
