@@ -68,7 +68,7 @@ Full keyboard navigation with `⌘K` command palette, single-key shortcuts for e
 
 ## System Architecture
 
-![System Architecture](docs/focusflow_system_architecture.png)
+![System Architecture](docs/focusflow_system_architecture.svg)
 
 The app is structured across four layers — **Client**, **Edge**, **API**, and **Services/Data** — with Supabase Realtime pushing live updates via WebSocket.
 
@@ -76,7 +76,7 @@ The app is structured across four layers — **Client**, **Edge**, **API**, and 
 
 ## Page Map
 
-![Page Map](docs/focusflow_page_map.png)
+![Page Map](docs/focusflow_page_map.svg)
 
 New users go through `/onboarding` to set their schedule and goals. Returning users land in the app shell with sidebar navigation across Dashboard, Tasks, Focus, Analytics, and Settings.
 
@@ -84,7 +84,7 @@ New users go through `/onboarding` to set their schedule and goals. Returning us
 
 ## AI Pipeline
 
-![AI Pipeline](docs/focusflow_ai_pipeline.png)
+![AI Pipeline](docs/focusflow_ai_pipeline.svg)
 
 Two independent AI flows share a Redis rate limiter:
 
@@ -97,7 +97,7 @@ Both use Anthropic Claude as primary with Groq LLaMA 3.3 70B as silent automatic
 
 ## Focus Score Engine
 
-![Focus Score Engine](docs/focusflow_score_engine.png)
+![Focus Score Engine](docs/focusflow_score_engine.svg)
 
 The daily focus score (0–100) is a weighted average of five signals:
 
