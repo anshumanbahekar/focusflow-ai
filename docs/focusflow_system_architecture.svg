@@ -1,0 +1,118 @@
+<svg width="900" height="640" viewBox="0 0 900 640" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+
+  <!-- Background -->
+  <rect width="900" height="640" fill="#0F0F1A" rx="16"/>
+
+  <!-- Title -->
+  <text x="450" y="38" text-anchor="middle" font-size="18" font-weight="700" fill="#E8E6FF" letter-spacing="0.5">FocusFlow AI — System Architecture</text>
+
+  <!-- Layer labels -->
+  <text x="28" y="115" text-anchor="middle" font-size="11" fill="#6B68A0" font-weight="600" letter-spacing="1" transform="rotate(-90,28,115)">CLIENT</text>
+  <text x="28" y="235" text-anchor="middle" font-size="11" fill="#6B68A0" font-weight="600" letter-spacing="1" transform="rotate(-90,28,235)">EDGE</text>
+  <text x="28" y="390" text-anchor="middle" font-size="11" fill="#6B68A0" font-weight="600" letter-spacing="1" transform="rotate(-90,28,390)">API</text>
+  <text x="28" y="545" text-anchor="middle" font-size="11" fill="#6B68A0" font-weight="600" letter-spacing="1" transform="rotate(-90,28,545)">DATA</text>
+
+  <!-- Layer bands -->
+  <rect x="52" y="62" width="830" height="100" rx="10" fill="#1A1830" stroke="#2D2B50" stroke-width="1"/>
+  <rect x="52" y="178" width="830" height="100" rx="10" fill="#1A1830" stroke="#2D2B50" stroke-width="1"/>
+  <rect x="52" y="294" width="830" height="230" rx="10" fill="#1A1830" stroke="#2D2B50" stroke-width="1"/>
+  <rect x="52" y="540" width="830" height="80" rx="10" fill="#1A1830" stroke="#2D2B50" stroke-width="1"/>
+
+  <!-- CLIENT: 4 boxes -->
+  <rect x="72" y="82" width="178" height="60" rx="8" fill="#2D1F6E" stroke="#7B6FD4" stroke-width="1.5"/>
+  <text x="161" y="107" text-anchor="middle" font-size="13" font-weight="600" fill="#C5BFFF">Dashboard</text>
+  <text x="161" y="126" text-anchor="middle" font-size="11" fill="#8A84C4">Score + tasks</text>
+
+  <rect x="268" y="82" width="178" height="60" rx="8" fill="#2D1F6E" stroke="#7B6FD4" stroke-width="1.5"/>
+  <text x="357" y="107" text-anchor="middle" font-size="13" font-weight="600" fill="#C5BFFF">Task manager</text>
+  <text x="357" y="126" text-anchor="middle" font-size="11" fill="#8A84C4">AI decomposer UI</text>
+
+  <rect x="464" y="82" width="178" height="60" rx="8" fill="#2D1F6E" stroke="#7B6FD4" stroke-width="1.5"/>
+  <text x="553" y="107" text-anchor="middle" font-size="13" font-weight="600" fill="#C5BFFF">Focus session</text>
+  <text x="553" y="126" text-anchor="middle" font-size="11" fill="#8A84C4">Pomodoro + timer</text>
+
+  <rect x="660" y="82" width="200" height="60" rx="8" fill="#2D1F6E" stroke="#7B6FD4" stroke-width="1.5"/>
+  <text x="760" y="107" text-anchor="middle" font-size="13" font-weight="600" fill="#C5BFFF">Analytics</text>
+  <text x="760" y="126" text-anchor="middle" font-size="11" fill="#8A84C4">Charts + heatmap</text>
+
+  <!-- Arrow client→edge -->
+  <line x1="450" y1="162" x2="450" y2="178" stroke="#4A4780" stroke-width="1.5" marker-end="url(#arr)"/>
+  <text x="464" y="173" font-size="10" fill="#6B68A0">HTTPS</text>
+
+  <!-- EDGE: 3 boxes -->
+  <rect x="72" y="198" width="220" height="60" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="182" y="223" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">Next.js middleware</text>
+  <text x="182" y="242" text-anchor="middle" font-size="11" fill="#4DB896">Auth guard + routing</text>
+
+  <rect x="316" y="198" width="252" height="60" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="442" y="223" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">Vercel edge</text>
+  <text x="442" y="242" text-anchor="middle" font-size="11" fill="#4DB896">CDN + global deploy</text>
+
+  <rect x="592" y="198" width="268" height="60" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="726" y="223" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">Supabase realtime</text>
+  <text x="726" y="242" text-anchor="middle" font-size="11" fill="#4DB896">WebSocket push → Analytics</text>
+
+  <!-- WS dashed back to client -->
+  <path d="M860 198 L860 142" fill="none" stroke="#3DB88A" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr-green)"/>
+
+  <!-- Arrow edge→api -->
+  <line x1="450" y1="258" x2="450" y2="294" stroke="#4A4780" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- API row 1 -->
+  <rect x="72" y="314" width="172" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="158" y="337" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/auth</text>
+  <text x="158" y="356" text-anchor="middle" font-size="11" fill="#C47060">JWT + sessions</text>
+
+  <rect x="260" y="314" width="198" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="359" y="337" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/ai/decompose</text>
+  <text x="359" y="356" text-anchor="middle" font-size="11" fill="#C47060">Claude prompt chain</text>
+
+  <rect x="474" y="314" width="192" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="570" y="337" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/ai/coach</text>
+  <text x="570" y="356" text-anchor="middle" font-size="11" fill="#C47060">Claude stream (SSE)</text>
+
+  <rect x="682" y="314" width="178" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="771" y="337" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/tasks</text>
+  <text x="771" y="356" text-anchor="middle" font-size="11" fill="#C47060">CRUD + ordering</text>
+
+  <!-- API row 2 -->
+  <rect x="130" y="392" width="192" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="226" y="415" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/sessions</text>
+  <text x="226" y="434" text-anchor="middle" font-size="11" fill="#C47060">Pomodoro logging</text>
+
+  <rect x="342" y="392" width="210" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="447" y="415" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/analytics</text>
+  <text x="447" y="434" text-anchor="middle" font-size="11" fill="#C47060">Score + heatmap data</text>
+
+  <rect x="572" y="392" width="250" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
+  <text x="697" y="415" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">/api/notifications</text>
+  <text x="697" y="434" text-anchor="middle" font-size="11" fill="#C47060">Web push (VAPID)</text>
+
+  <!-- Arrows api→data -->
+  <line x1="226" y1="450" x2="226" y2="540" stroke="#4A4780" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arr)"/>
+  <line x1="447" y1="450" x2="447" y2="540" stroke="#4A4780" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arr)"/>
+  <line x1="697" y1="450" x2="697" y2="540" stroke="#4A4780" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#arr)"/>
+
+  <!-- DATA: 3 boxes -->
+  <rect x="72" y="558" width="228" height="48" rx="8" fill="#2B2208" stroke="#C9820A" stroke-width="1.5"/>
+  <text x="186" y="577" text-anchor="middle" font-size="13" font-weight="600" fill="#F5C842">Postgres (Supabase)</text>
+  <text x="186" y="595" text-anchor="middle" font-size="11" fill="#B8960A">Tasks · sessions · users</text>
+
+  <rect x="326" y="558" width="240" height="48" rx="8" fill="#2B2208" stroke="#C9820A" stroke-width="1.5"/>
+  <text x="446" y="577" text-anchor="middle" font-size="13" font-weight="600" fill="#F5C842">Anthropic + Groq</text>
+  <text x="446" y="595" text-anchor="middle" font-size="11" fill="#B8960A">Claude → LLaMA fallback</text>
+
+  <rect x="592" y="558" width="268" height="48" rx="8" fill="#2B2208" stroke="#C9820A" stroke-width="1.5"/>
+  <text x="726" y="577" text-anchor="middle" font-size="13" font-weight="600" fill="#F5C842">Redis (Upstash)</text>
+  <text x="726" y="595" text-anchor="middle" font-size="11" fill="#B8960A">Rate limit + AI cache</text>
+
+  <!-- Markers -->
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#4A4780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#3DB88A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+</svg>
