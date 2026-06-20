@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Zap, Loader2, Github, Brain, Timer, BarChart2, Bot } from "lucide-react";
+import { Eye, EyeOff, Zap, Loader2, Github, Sparkles, Clock4, TrendingUp, MessageSquare } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
 const FEATURES = [
-  { icon: Brain,    text: "AI breaks your tasks into focused subtasks" },
-  { icon: Timer,    text: "Smart Pomodoro timer that learns your rhythm" },
-  { icon: BarChart2,text: "Real-time focus score + 12-week heatmap" },
-  { icon: Bot,      text: "Streaming AI coach during every session" },
+  { icon: Sparkles,      text: "AI breaks your tasks into focused subtasks" },
+  { icon: Clock4,        text: "Smart Pomodoro timer that learns your rhythm" },
+  { icon: TrendingUp,    text: "Real-time focus score + 12-week heatmap" },
+  { icon: MessageSquare, text: "Streaming AI coach during every session" },
 ];
 
 export default function LoginPage() {
@@ -54,7 +54,16 @@ export default function LoginPage() {
           <span className="text-white font-semibold text-xl">FocusFlow AI</span>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
+          <div>
+            <h2 className="text-white text-3xl font-bold leading-snug mb-2">
+              Deep work,<br />powered by AI.
+            </h2>
+            <p className="text-white/60 text-sm">
+              The focus operating system for serious builders.
+            </p>
+          </div>
+
           <div className="space-y-4">
             {FEATURES.map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
@@ -65,12 +74,13 @@ export default function LoginPage() {
               </div>
             ))}
           </div>
-          <p className="text-white/60 text-xs">
+
+          <p className="text-white/50 text-xs">
             Built for NextGenHacks — the hackathon for next-gen builders
           </p>
         </div>
 
-        <div className="text-white/40 text-xs">© 2025 FocusFlow AI</div>
+        <div className="text-white/30 text-xs">© 2026 FocusFlow AI</div>
       </div>
 
       {/* Right — form */}
