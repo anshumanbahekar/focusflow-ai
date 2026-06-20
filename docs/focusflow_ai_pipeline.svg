@@ -1,97 +1,86 @@
-<svg width="900" height="620" viewBox="0 0 900 620" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+<svg width="900" height="630" viewBox="0 0 900 630" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
   <defs>
     <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="#5A5790" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
     <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-      <path d="M2 1L8 5L2 9" fill="none" stroke="#C04820" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 1L8 5L2 9" fill="none" stroke="#FF6B6B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </marker>
   </defs>
 
-  <rect width="900" height="620" fill="#0F0F1A" rx="16"/>
-  <text x="450" y="38" text-anchor="middle" font-size="18" font-weight="700" fill="#E8E6FF" letter-spacing="0.5">FocusFlow AI — AI Pipeline</text>
+  <rect width="900" height="630" fill="#0F0F1A" rx="16"/>
+  <text x="450" y="36" text-anchor="middle" font-size="18" font-weight="700" fill="#FFFFFF" letter-spacing="0.5">FocusFlow AI — AI Pipeline</text>
 
-  <!-- Divider -->
-  <line x1="450" y1="58" x2="450" y2="520" stroke="#2D2B50" stroke-width="1" stroke-dasharray="5 4"/>
+  <!-- Vertical divider -->
+  <line x1="450" y1="55" x2="450" y2="535" stroke="#FFFFFF" stroke-width="0.5" stroke-dasharray="6 4"/>
 
   <!-- Column headers -->
-  <text x="225" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="#7B6FD4" letter-spacing="0.5">TASK DECOMPOSER FLOW</text>
-  <text x="675" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="#3DB88A" letter-spacing="0.5">AI FOCUS COACH FLOW</text>
+  <text x="225" y="64" text-anchor="middle" font-size="12" font-weight="700" fill="#9B8FE8" letter-spacing="1">TASK DECOMPOSER</text>
+  <text x="675" y="64" text-anchor="middle" font-size="12" font-weight="700" fill="#3DB88A" letter-spacing="1">AI FOCUS COACH</text>
 
-  <!-- LEFT COLUMN: decompose -->
-  <!-- Step boxes (y positions: 90, 168, 246, 324, 402, 480) -->
-  <rect x="72" y="88" width="308" height="58" rx="8" fill="#2D1F6E" stroke="#7B6FD4" stroke-width="1.5"/>
-  <text x="226" y="111" text-anchor="middle" font-size="13" font-weight="600" fill="#C5BFFF">User goal input</text>
-  <text x="226" y="130" text-anchor="middle" font-size="11" fill="#8A84C4">Title + description + deadline</text>
+  <!-- LEFT column steps -->
+  <rect x="60" y="78" width="320" height="58" rx="8" fill="#2D1F6E" stroke="#9B8FE8" stroke-width="1.5"/>
+  <text x="220" y="102" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">User goal input</text>
+  <text x="220" y="122" text-anchor="middle" font-size="11" fill="#A89FD8">Title + description + deadline</text>
+  <line x1="220" y1="136" x2="220" y2="156" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="226" y1="146" x2="226" y2="166" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="60" y="156" width="320" height="58" rx="8" fill="#1E2038" stroke="#FFFFFF" stroke-width="0.8"/>
+  <text x="220" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Context builder</text>
+  <text x="220" y="200" text-anchor="middle" font-size="11" fill="#888888">User prefs + past patterns</text>
+  <line x1="220" y1="214" x2="220" y2="234" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="72" y="166" width="308" height="58" rx="8" fill="#1E2235" stroke="#4A4870" stroke-width="1"/>
-  <text x="226" y="189" text-anchor="middle" font-size="13" font-weight="600" fill="#A0A0C8">Context builder</text>
-  <text x="226" y="208" text-anchor="middle" font-size="11" fill="#6A6A90">User prefs + past patterns</text>
+  <rect x="60" y="234" width="320" height="58" rx="8" fill="#2B2208" stroke="#E8B830" stroke-width="1.5"/>
+  <text x="220" y="258" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">System prompt</text>
+  <text x="220" y="278" text-anchor="middle" font-size="11" fill="#F5C842">Role + output format (JSON)</text>
+  <line x1="220" y1="292" x2="220" y2="312" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="226" y1="224" x2="226" y2="244" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="60" y="312" width="320" height="58" rx="8" fill="#3B1F1A" stroke="#E8724A" stroke-width="1.5"/>
+  <text x="220" y="336" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Claude API call</text>
+  <text x="220" y="356" text-anchor="middle" font-size="11" fill="#F5A085">claude-sonnet-4-6 · max 1500 tk</text>
+  <line x1="220" y1="370" x2="220" y2="390" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="72" y="244" width="308" height="58" rx="8" fill="#2B2208" stroke="#C9820A" stroke-width="1.5"/>
-  <text x="226" y="267" text-anchor="middle" font-size="13" font-weight="600" fill="#F5C842">System prompt</text>
-  <text x="226" y="286" text-anchor="middle" font-size="11" fill="#B8960A">Role + output format (JSON)</text>
+  <rect x="60" y="390" width="320" height="58" rx="8" fill="#1E2038" stroke="#FFFFFF" stroke-width="0.8"/>
+  <text x="220" y="414" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Response parser</text>
+  <text x="220" y="434" text-anchor="middle" font-size="11" fill="#888888">JSON validate + sanitize</text>
+  <line x1="220" y1="448" x2="220" y2="468" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="226" y1="302" x2="226" y2="322" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="60" y="468" width="320" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="220" y="492" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Subtasks → DB + UI</text>
+  <text x="220" y="512" text-anchor="middle" font-size="11" fill="#7EEDC5">Supabase batch insert</text>
 
-  <rect x="72" y="322" width="308" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
-  <text x="226" y="345" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">Claude API call</text>
-  <text x="226" y="364" text-anchor="middle" font-size="11" fill="#C47060">claude-sonnet-4-6 · max 1500 tk</text>
+  <!-- RIGHT column steps -->
+  <rect x="520" y="78" width="320" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="680" y="102" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">User message</text>
+  <text x="680" y="122" text-anchor="middle" font-size="11" fill="#7EEDC5">Chat input + current task</text>
+  <line x1="680" y1="136" x2="680" y2="156" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="226" y1="380" x2="226" y2="400" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="520" y="156" width="320" height="58" rx="8" fill="#1E2038" stroke="#FFFFFF" stroke-width="0.8"/>
+  <text x="680" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Session context</text>
+  <text x="680" y="200" text-anchor="middle" font-size="11" fill="#888888">Active task + score + history</text>
+  <line x1="680" y1="214" x2="680" y2="234" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="72" y="400" width="308" height="58" rx="8" fill="#1E2235" stroke="#4A4870" stroke-width="1"/>
-  <text x="226" y="423" text-anchor="middle" font-size="13" font-weight="600" fill="#A0A0C8">Response parser</text>
-  <text x="226" y="442" text-anchor="middle" font-size="11" fill="#6A6A90">JSON validate + sanitize</text>
+  <rect x="520" y="234" width="320" height="58" rx="8" fill="#2B2208" stroke="#E8B830" stroke-width="1.5"/>
+  <text x="680" y="258" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">System prompt</text>
+  <text x="680" y="278" text-anchor="middle" font-size="11" fill="#F5C842">Coach persona + constraints</text>
+  <line x1="680" y1="292" x2="680" y2="312" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <line x1="226" y1="458" x2="226" y2="478" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
+  <rect x="520" y="312" width="320" height="58" rx="8" fill="#3B1F1A" stroke="#E8724A" stroke-width="1.5"/>
+  <text x="680" y="336" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Claude API (streaming)</text>
+  <text x="680" y="356" text-anchor="middle" font-size="11" fill="#F5A085">Server-sent events (SSE)</text>
+  <line x1="680" y1="370" x2="680" y2="390" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <rect x="72" y="478" width="308" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
-  <text x="226" y="501" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">Subtasks → DB</text>
-  <text x="226" y="520" text-anchor="middle" font-size="11" fill="#4DB896">Supabase batch insert → UI render</text>
+  <rect x="520" y="390" width="320" height="58" rx="8" fill="#1E2038" stroke="#FFFFFF" stroke-width="0.8"/>
+  <text x="680" y="414" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Stream to UI</text>
+  <text x="680" y="434" text-anchor="middle" font-size="11" fill="#888888">Token-by-token rendering</text>
+  <line x1="680" y1="448" x2="680" y2="468" stroke="#FFFFFF" stroke-width="1.5" marker-end="url(#arr)"/>
 
-  <!-- RIGHT COLUMN: coach -->
-  <rect x="520" y="88" width="308" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
-  <text x="674" y="111" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">User message</text>
-  <text x="674" y="130" text-anchor="middle" font-size="11" fill="#4DB896">Chat input + current task</text>
+  <rect x="520" y="468" width="320" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
+  <text x="680" y="492" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Chat history cached</text>
+  <text x="680" y="512" text-anchor="middle" font-size="11" fill="#7EEDC5">Supabase + Redis cache</text>
 
-  <line x1="674" y1="146" x2="674" y2="166" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <rect x="520" y="166" width="308" height="58" rx="8" fill="#1E2235" stroke="#4A4870" stroke-width="1"/>
-  <text x="674" y="189" text-anchor="middle" font-size="13" font-weight="600" fill="#A0A0C8">Session context</text>
-  <text x="674" y="208" text-anchor="middle" font-size="11" fill="#6A6A90">Active task + score + history</text>
-
-  <line x1="674" y1="224" x2="674" y2="244" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <rect x="520" y="244" width="308" height="58" rx="8" fill="#2B2208" stroke="#C9820A" stroke-width="1.5"/>
-  <text x="674" y="267" text-anchor="middle" font-size="13" font-weight="600" fill="#F5C842">System prompt</text>
-  <text x="674" y="286" text-anchor="middle" font-size="11" fill="#B8960A">Coach persona + constraints</text>
-
-  <line x1="674" y1="302" x2="674" y2="322" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <rect x="520" y="322" width="308" height="58" rx="8" fill="#3B1F1A" stroke="#D45A30" stroke-width="1.5"/>
-  <text x="674" y="345" text-anchor="middle" font-size="13" font-weight="600" fill="#F5A085">Claude API (streaming)</text>
-  <text x="674" y="364" text-anchor="middle" font-size="11" fill="#C47060">Server-sent events (SSE)</text>
-
-  <line x1="674" y1="380" x2="674" y2="400" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <rect x="520" y="400" width="308" height="58" rx="8" fill="#1E2235" stroke="#4A4870" stroke-width="1"/>
-  <text x="674" y="423" text-anchor="middle" font-size="13" font-weight="600" fill="#A0A0C8">Stream to UI</text>
-  <text x="674" y="442" text-anchor="middle" font-size="11" fill="#6A6A90">Token-by-token rendering</text>
-
-  <line x1="674" y1="458" x2="674" y2="478" stroke="#5A5790" stroke-width="1.5" marker-end="url(#arr)"/>
-
-  <rect x="520" y="478" width="308" height="58" rx="8" fill="#1A3830" stroke="#3DB88A" stroke-width="1.5"/>
-  <text x="674" y="501" text-anchor="middle" font-size="13" font-weight="600" fill="#7EEDC5">Chat history cached</text>
-  <text x="674" y="520" text-anchor="middle" font-size="11" fill="#4DB896">Supabase + Redis cache</text>
-
-  <!-- Rate limiter box at bottom, shared -->
-  <path d="M226 536 L226 554 L450 570 L674 554 L674 536" fill="none" stroke="#8B1A1A" stroke-width="1" stroke-dasharray="4 3"/>
-  <rect x="300" y="558" width="300" height="46" rx="8" fill="#2A0A0A" stroke="#8B1A1A" stroke-width="1.5"/>
-  <text x="450" y="576" text-anchor="middle" font-size="13" font-weight="600" fill="#FF8080">Redis rate limiter (Upstash)</text>
-  <text x="450" y="594" text-anchor="middle" font-size="11" fill="#C05050">10 AI requests / min per user</text>
+  <!-- Rate limiter shared box -->
+  <path d="M220 526 L220 558 L450 574 L680 558 L680 526" fill="none" stroke="#FFFFFF" stroke-width="1" stroke-dasharray="5 3"/>
+  <rect x="290" y="572" width="320" height="48" rx="8" fill="#2A0A0A" stroke="#FF6B6B" stroke-width="1.5"/>
+  <text x="450" y="592" text-anchor="middle" font-size="13" font-weight="700" fill="#FFFFFF">Redis rate limiter (Upstash)</text>
+  <text x="450" y="610" text-anchor="middle" font-size="11" fill="#FF8080">10 AI requests / min per user</text>
 </svg>
