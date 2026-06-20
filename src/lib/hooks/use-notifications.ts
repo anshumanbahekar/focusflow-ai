@@ -36,7 +36,7 @@ export function useNotifications() {
         userVisibleOnly:      true,
         applicationServerKey: urlBase64ToUint8Array(
           process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-        ),
+        ) as unknown as BufferSource,
       });
 
       await fetch("/api/notifications", {
