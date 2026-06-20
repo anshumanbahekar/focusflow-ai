@@ -3,35 +3,36 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Zap, Loader2, Github } from "lucide-react";
+import { Eye, EyeOff, Zap, Loader2, Github, Brain, Timer, BarChart2, Bot } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 
+const FEATURES = [
+  { icon: Brain,    text: "AI breaks your tasks into focused subtasks" },
+  { icon: Timer,    text: "Smart Pomodoro timer that learns your rhythm" },
+  { icon: BarChart2,text: "Real-time focus score + 12-week heatmap" },
+  { icon: Bot,      text: "Streaming AI coach during every session" },
+];
+
 export default function LoginPage() {
-  const router = useRouter();
+  const router   = useRouter();
   const supabase = createClient();
 
-  const [email, setEmail]       = useState("");
-  const [password, setPassword] = useState("");
-  const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading]   = useState(false);
+  const [email, setEmail]         = useState("");
+  const [password, setPassword]   = useState("");
+  const [showPass, setShowPass]   = useState(false);
+  const [loading, setLoading]     = useState(false);
   const [oauthLoad, setOauthLoad] = useState<"google" | "github" | null>(null);
-  const [error, setError]       = useState<string | null>(null);
+  const [error, setError]         = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
-    }
+    if (error) { setError(error.message); setLoading(false); }
+    else { router.push("/dashboard"); router.refresh(); }
   };
 
   const handleOAuth = async (provider: "google" | "github") => {
@@ -54,15 +55,12 @@ export default function LoginPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="space-y-3">
-            {[
-              { emoji: "🧠", text: "AI breaks your tasks into focused subtasks" },
-              { emoji: "⏱️", text: "Smart Pomodoro timer that learns your rhythm" },
-              { emoji: "📊", text: "Real-time focus score + 12-week heatmap" },
-              { emoji: "🤖", text: "Streaming AI coach during every session" },
-            ].map(({ emoji, text }) => (
+          <div className="space-y-4">
+            {FEATURES.map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-3">
-                <span className="text-2xl">{emoji}</span>
+                <div className="w-8 h-8 rounded-lg bg-white/15 flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-4 h-4 text-white" />
+                </div>
                 <p className="text-white/90 text-sm">{text}</p>
               </div>
             ))}
@@ -128,15 +126,13 @@ export default function LoginPage() {
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium" htmlFor="email">Email</label>
-              <input
-                id="email" type="email" autoComplete="email"
+              <input id="email" type="email" autoComplete="email"
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 required placeholder="you@example.com"
                 className={cn(
                   "w-full px-3 py-2.5 rounded-lg border bg-background text-sm",
                   "focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-                )}
-              />
+                )} />
             </div>
 
             <div className="space-y-1.5">
@@ -148,16 +144,14 @@ export default function LoginPage() {
                 </Link>
               </div>
               <div className="relative">
-                <input
-                  id="password" type={showPass ? "text" : "password"}
+                <input id="password" type={showPass ? "text" : "password"}
                   autoComplete="current-password"
                   value={password} onChange={(e) => setPassword(e.target.value)}
                   required placeholder="••••••••"
                   className={cn(
                     "w-full px-3 py-2.5 pr-10 rounded-lg border bg-background text-sm",
                     "focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-                  )}
-                />
+                  )} />
                 <button type="button" onClick={() => setShowPass((p) => !p)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                   {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -174,7 +168,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/auth/signup" className="text-brand-500 hover:text-brand-600 font-medium">
               Create one
             </Link>
