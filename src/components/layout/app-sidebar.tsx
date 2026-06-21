@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, ListTodo, Timer, BarChart3,
-  Settings, Zap, ChevronRight, Trophy,
+  Settings, ChevronRight, Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { User } from "@/types";
@@ -27,7 +27,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b">
         <div className="flex items-center gap-2.5">
-          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-9 h-9 object-contain" />
+          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-10 h-10 object-contain" />
           <span className="font-semibold text-base tracking-tight">FocusFlow</span>
           <span className="text-[10px] font-medium bg-brand-100 text-brand-600
                            dark:bg-brand-900 dark:text-brand-300 px-1.5 py-0.5 rounded-full">AI</span>

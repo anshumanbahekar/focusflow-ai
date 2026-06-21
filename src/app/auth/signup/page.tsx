@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Zap, Loader2, Github, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Github, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
@@ -93,9 +93,7 @@ export default function SignupPage() {
       {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-brand-600 to-brand-800 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-5 h-5 object-contain" />
-          </div>
+          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-12 h-12 object-contain" />
           <span className="text-white font-semibold text-xl">FocusFlow AI</span>
         </div>
 
@@ -125,16 +123,14 @@ export default function SignupPage() {
           </div>
         </div>
 
-        <p className="text-white/40 text-xs">© 2025 FocusFlow AI</p>
+        <p className="text-white/40 text-xs">© 2026 FocusFlow AI</p>
       </div>
 
       {/* Right — form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm space-y-6">
           <div className="lg:hidden flex items-center gap-2 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
-              <img src="/focusflow-ai.png" alt="FocusFlow" className="w-4 h-4 object-contain" />
-            </div>
+            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-10 h-10 object-contain" />
             <span className="font-semibold">FocusFlow AI</span>
           </div>
 

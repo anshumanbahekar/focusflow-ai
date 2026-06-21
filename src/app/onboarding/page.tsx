@@ -49,7 +49,7 @@ export default function OnboardingPage() {
     const hours = WORK_HOUR_MAP[workStyle];
     const p     = POMODORO_PRESETS[preset];
 
-    await (supabase as any).from("users").update({
+    await supabase.from("users").update({
       full_name: name || undefined,
       preferences: {
         work_start_hour:            hours.start,
@@ -74,9 +74,7 @@ export default function OnboardingPage() {
 
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-10">
-        <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg">
-          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-5 h-5 object-contain" />
-        </div>
+        <img src="/focusflow-ai.png" alt="FocusFlow" className="w-12 h-12 object-contain" />
         <span className="text-xl font-semibold">FocusFlow AI</span>
       </div>
 
