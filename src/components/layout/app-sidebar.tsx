@@ -10,11 +10,11 @@ import { cn } from "@/lib/utils/cn";
 import type { User } from "@/types";
 
 const NAV_ITEMS = [
-  { href: "/dashboard",  label: "Dashboard",    icon: LayoutDashboard, desc: "Today's overview" },
-  { href: "/tasks",      label: "Tasks",         icon: ListTodo,        desc: "Manage & decompose" },
-  { href: "/focus",      label: "Focus",         icon: Timer,           desc: "Deep work session" },
-  { href: "/analytics",  label: "Analytics",     icon: BarChart3,       desc: "Score & heatmap" },
-  { href: "/settings",   label: "Settings",      icon: Settings,        desc: "Preferences" },
+  { href: "/dashboard",  label: "Dashboard",  icon: LayoutDashboard, desc: "Today's overview" },
+  { href: "/tasks",      label: "Tasks",       icon: ListTodo,        desc: "Manage & decompose" },
+  { href: "/focus",      label: "Focus",       icon: Timer,           desc: "Deep work session" },
+  { href: "/analytics",  label: "Analytics",   icon: BarChart3,       desc: "Score & heatmap" },
+  { href: "/settings",   label: "Settings",    icon: Settings,        desc: "Preferences" },
 ];
 
 interface AppSidebarProps { user: User | null; }
@@ -27,7 +27,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       {/* Logo */}
       <div className="h-16 flex items-center px-5 border-b">
         <div className="flex items-center gap-2.5">
-          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-10 h-10 object-contain" />
+          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-9 h-9 object-contain" />
           <span className="font-semibold text-base tracking-tight">FocusFlow</span>
           <span className="text-[10px] font-medium bg-brand-100 text-brand-600
                            dark:bg-brand-900 dark:text-brand-300 px-1.5 py-0.5 rounded-full">AI</span>
@@ -40,10 +40,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
           return (
             <Link key={href} href={href}
-              className={cn(
-                "sidebar-item group",
-                active && "active"
-              )}>
+              className={cn("sidebar-item group", active && "active")}>
               <Icon className={cn(
                 "w-4 h-4 flex-shrink-0 transition-colors",
                 active ? "text-brand-500" : "text-muted-foreground group-hover:text-foreground"
@@ -52,9 +49,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                 <div className="text-sm font-medium">{label}</div>
                 <div className="text-[11px] text-muted-foreground truncate">{desc}</div>
               </div>
-              {active && (
-                <ChevronRight className="w-3.5 h-3.5 text-brand-500 flex-shrink-0" />
-              )}
+              {active && <ChevronRight className="w-3.5 h-3.5 text-brand-500 flex-shrink-0" />}
             </Link>
           );
         })}
