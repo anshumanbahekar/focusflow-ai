@@ -28,7 +28,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <div className="h-16 flex items-center px-5 border-b">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
-            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-4 h-4 object-contain" />
+            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-9 h-9 object-contain" />
           </div>
           <span className="font-semibold text-base tracking-tight">FocusFlow</span>
           <span className="text-[10px] font-medium bg-brand-100 text-brand-600
