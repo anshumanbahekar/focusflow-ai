@@ -24,30 +24,71 @@ interface CoachChatProps {
   sessionStatus:  SessionStatus;
 }
 
-// Lightweight markdown renderer — no dependencies
-// Handles: **bold**, *italic*, `code`, ```code blocks```, bullet lists, numbered lists
+// Render a KaTeX math expression safely
+function MathSpan({ tex, display }: { tex: string; display: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    import("katex").then((katex) => {
+      try {
+        katex.default.render(tex, ref.current!, {
+          displayMode:  display,
+          throwOnError: false,
+          strict:       false,
+        });
+      } catch {
+        if (ref.current) ref.current.textContent = tex;
+      }
+    });
+  }, [tex, display]);
+  return (
+    <span
+      ref={ref}
+      className={cn(
+        "katex-wrap",
+        display && "block my-2 text-center overflow-x-auto"
+      )}
+    />
+  );
+}
+
+// Inline markdown + math renderer — no heavy dependencies
 function MarkdownText({ content }: { content: string }) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
   let i = 0;
 
+  // Parse inline: math $...$ / **bold** / *italic* / `code`
   const renderInline = (text: string): React.ReactNode[] => {
     const parts: React.ReactNode[] = [];
-    // Regex: ```code```, `code`, **bold**, *italic*
-    const regex = /```([\s\S]*?)```|`([^`]+)`|\*\*([^*]+)\*\*|\*([^*]+)\*/g;
+    const regex = /\$\$([^$]+)\$\$|\$([^$\n]+)\$|```([\s\S]*?)```|`([^`]+)`|\*\*([^*]+)\*\*|\*([^*]+)\*/g;
     let last = 0;
     let match;
     let key = 0;
     while ((match = regex.exec(text)) !== null) {
       if (match.index > last) parts.push(text.slice(last, match.index));
       if (match[1] !== undefined) {
-        parts.push(<code key={key++} className="block bg-muted rounded px-2 py-1 text-xs font-mono mt-1 mb-1 whitespace-pre-wrap">{match[1].trim()}</code>);
+        // $$display math$$
+        parts.push(<MathSpan key={key++} tex={match[1]} display={true} />);
       } else if (match[2] !== undefined) {
-        parts.push(<code key={key++} className="bg-muted rounded px-1 py-0.5 text-xs font-mono">{match[2]}</code>);
+        // $inline math$
+        parts.push(<MathSpan key={key++} tex={match[2]} display={false} />);
       } else if (match[3] !== undefined) {
-        parts.push(<strong key={key++} className="font-semibold">{match[3]}</strong>);
+        // ```code block```
+        parts.push(
+          <pre key={key++} className="bg-muted rounded-lg px-3 py-2 text-xs font-mono overflow-x-auto my-2 whitespace-pre-wrap">
+            {match[3].trim()}
+          </pre>
+        );
       } else if (match[4] !== undefined) {
-        parts.push(<em key={key++}>{match[4]}</em>);
+        // `inline code`
+        parts.push(<code key={key++} className="bg-muted rounded px-1 py-0.5 text-xs font-mono">{match[4]}</code>);
+      } else if (match[5] !== undefined) {
+        // **bold**
+        parts.push(<strong key={key++} className="font-semibold">{match[5]}</strong>);
+      } else if (match[6] !== undefined) {
+        // *italic*
+        parts.push(<em key={key++}>{match[6]}</em>);
       }
       last = match.index + match[0].length;
     }
@@ -58,8 +99,9 @@ function MarkdownText({ content }: { content: string }) {
   while (i < lines.length) {
     const line = lines[i];
 
-    // Code block ```
+    // Fenced code block ```
     if (line.trim().startsWith("```")) {
+      const lang = line.trim().slice(3);
       const codeLines: string[] = [];
       i++;
       while (i < lines.length && !lines[i].trim().startsWith("```")) {
@@ -75,6 +117,26 @@ function MarkdownText({ content }: { content: string }) {
       continue;
     }
 
+    // Display math $$...$$
+    if (line.trim().startsWith("$$")) {
+      const mathLines: string[] = [];
+      const startLine = line.trim().slice(2);
+      if (startLine && !startLine.endsWith("$$")) {
+        mathLines.push(startLine);
+        i++;
+        while (i < lines.length && !lines[i].trim().endsWith("$$")) {
+          mathLines.push(lines[i]);
+          i++;
+        }
+        if (i < lines.length) mathLines.push(lines[i].trim().slice(0, -2));
+      } else {
+        mathLines.push(startLine.endsWith("$$") ? startLine.slice(0, -2) : startLine);
+      }
+      elements.push(<MathSpan key={i} tex={mathLines.join("\n")} display={true} />);
+      i++;
+      continue;
+    }
+
     // Bullet list
     if (/^[-*•]\s/.test(line.trim())) {
       const items: string[] = [];
@@ -86,8 +148,8 @@ function MarkdownText({ content }: { content: string }) {
         <ul key={i} className="list-none space-y-1 my-1">
           {items.map((item, j) => (
             <li key={j} className="flex gap-2 items-start">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0"/>
-              <span>{renderInline(item)}</span>
+              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />
+              <span className="text-sm leading-relaxed">{renderInline(item)}</span>
             </li>
           ))}
         </ul>
@@ -98,11 +160,9 @@ function MarkdownText({ content }: { content: string }) {
     // Numbered list
     if (/^\d+\.\s/.test(line.trim())) {
       const items: string[] = [];
-      let num = 1;
       while (i < lines.length && /^\d+\.\s/.test(lines[i].trim())) {
         items.push(lines[i].trim().replace(/^\d+\.\s/, ""));
         i++;
-        num++;
       }
       elements.push(
         <ol key={i} className="space-y-1 my-1">
@@ -112,7 +172,7 @@ function MarkdownText({ content }: { content: string }) {
                                text-brand-600 dark:text-brand-400 text-xs flex items-center justify-center font-medium">
                 {j + 1}
               </span>
-              <span className="pt-0.5">{renderInline(item)}</span>
+              <span className="text-sm leading-relaxed pt-0.5">{renderInline(item)}</span>
             </li>
           ))}
         </ol>
@@ -122,12 +182,16 @@ function MarkdownText({ content }: { content: string }) {
 
     // Heading ##
     if (line.startsWith("## ")) {
-      elements.push(<p key={i} className="font-semibold text-sm mt-2 mb-1">{renderInline(line.slice(3))}</p>);
+      elements.push(
+        <p key={i} className="font-semibold text-sm mt-2 mb-1">
+          {renderInline(line.slice(3))}
+        </p>
+      );
       i++;
       continue;
     }
 
-    // Empty line
+    // Empty line → spacing
     if (line.trim() === "") {
       elements.push(<div key={i} className="h-1.5" />);
       i++;
@@ -216,10 +280,7 @@ export function CoachChat({
 
           return (
             <div key={i} className={cn("flex flex-col gap-1", isUser ? "items-end" : "items-start")}>
-              <div className={cn(
-                isUser ? "chat-bubble-user" : "chat-bubble-ai",
-                "max-w-[92%]"   // wider bubbles
-              )}>
+              <div className={cn(isUser ? "chat-bubble-user" : "chat-bubble-ai", "max-w-[92%]")}>
                 {isUser ? (
                   <p className="text-sm leading-relaxed">{msg.content}</p>
                 ) : (
@@ -245,10 +306,7 @@ export function CoachChat({
             </div>
           );
         })}
-
-        {error && (
-          <p className="text-xs text-red-500 text-center py-1">{error}</p>
-        )}
+        {error && <p className="text-xs text-red-500 text-center py-1">{error}</p>}
         <div ref={bottomRef} />
       </div>
 
@@ -277,8 +335,7 @@ export function CoachChat({
             onKeyDown={handleKey}
             placeholder={isStreaming ? "Coach is responding…" : "Ask anything — math, concepts, help…"}
             disabled={isStreaming}
-            className="flex-1 bg-transparent text-sm outline-none
-                       placeholder:text-muted-foreground disabled:opacity-50"
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:opacity-50"
           />
           {isStreaming ? (
             <button onClick={stopStreaming} title="Stop"
@@ -294,7 +351,7 @@ export function CoachChat({
           )}
         </div>
         <p className="text-[10px] text-muted-foreground text-center mt-1.5">
-          Ask math questions, concepts, or anything about your task
+          Supports math formulas · code · markdown
         </p>
       </div>
     </div>

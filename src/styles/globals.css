@@ -186,3 +186,5 @@
   }
   .dark .glass { background: rgba(15,15,20,0.7); }
 }
+
+@import 'katex/dist/katex.min.css';
