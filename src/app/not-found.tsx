@@ -12,7 +12,7 @@ export default function NotFound() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-8 p-6 bg-background">
       <div className="flex items-center gap-2.5">
         <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center">
-          <Zap className="w-5 h-5 text-white" />
+          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-5 h-5 object-contain" />
         </div>
         <span className="font-semibold text-xl">FocusFlow AI</span>
       </div>

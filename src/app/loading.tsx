@@ -6,7 +6,7 @@ export default function Loading() {
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           <div className="w-14 h-14 rounded-2xl bg-brand-500 flex items-center justify-center animate-pulse">
-            <Zap className="w-7 h-7 text-white" />
+            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-7 h-7 object-contain" />
           </div>
           <div className="absolute inset-0 rounded-2xl border-2 border-brand-400 animate-ping opacity-40" />
         </div>

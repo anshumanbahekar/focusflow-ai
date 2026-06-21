@@ -75,7 +75,7 @@ export default function OnboardingPage() {
       {/* Logo */}
       <div className="flex items-center gap-2.5 mb-10">
         <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center shadow-lg">
-          <Zap className="w-5 h-5 text-white" />
+          <img src="/focusflow-ai.png" alt="FocusFlow" className="w-5 h-5 object-contain" />
         </div>
         <span className="text-xl font-semibold">FocusFlow AI</span>
       </div>

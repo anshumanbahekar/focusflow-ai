@@ -49,7 +49,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-brand-500 flex-col justify-between p-12">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
+            <img src="/focusflow-ai.png" alt="FocusFlow" className="w-5 h-5 object-contain" />
           </div>
           <span className="text-white font-semibold text-xl">FocusFlow AI</span>
         </div>
@@ -89,7 +89,7 @@ export default function LoginPage() {
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-6">
             <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
+              <img src="/focusflow-ai.png" alt="FocusFlow" className="w-4 h-4 object-contain" />
             </div>
             <span className="font-semibold">FocusFlow AI</span>
           </div>
