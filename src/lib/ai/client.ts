@@ -39,7 +39,7 @@ export function shouldFallbackToGroq(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const e = err as Record<string, unknown>;
   // Quota / rate limit / no key / overload
-  if (e.status === 429 || e.status === 529) return true;
+  if (e.status === 429 || e.status === 401 || e.status === 403 || e.status === 529) return true;
   if (typeof e.message === "string") {
     const msg = e.message.toLowerCase();
     if (
