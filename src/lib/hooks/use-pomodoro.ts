@@ -5,10 +5,10 @@ import type { SessionStatus, UserPreferences } from "@/types";
 
 export interface PomodoroState {
   status:         SessionStatus;
-  elapsed:        number;   // seconds into current phase
-  remaining:      number;   // seconds left in current phase
-  total:          number;   // total seconds for current phase
-  sessionNumber:  number;   // which pomodoro (1-based)
+  elapsed:        number;
+  remaining:      number;
+  total:          number;
+  sessionNumber:  number;
   breakType:      "short" | "long" | null;
   sessionId:      string | null;
 }
@@ -34,55 +34,88 @@ export function usePomodoro({ prefs, taskId, onComplete, onBreakEnd }: UsePomodo
   const tickRef        = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef   = useRef<number>(0);
   const interruptRef   = useRef<number>(0);
+  // Refs so callbacks inside setInterval always see latest values
+  const onCompleteRef  = useRef(onComplete);
+  const onBreakEndRef  = useRef(onBreakEnd);
+  const prefsRef       = useRef(prefs);
 
-  const clearTick = () => {
-    if (tickRef.current) clearInterval(tickRef.current);
-    tickRef.current = null;
-  };
+  useEffect(() => { onCompleteRef.current  = onComplete; },  [onComplete]);
+  useEffect(() => { onBreakEndRef.current  = onBreakEnd; },  [onBreakEnd]);
+  useEffect(() => { prefsRef.current       = prefs; },       [prefs]);
 
-  const tick = useCallback(() => {
-    setState((prev) => {
-      if (prev.status !== "focusing" && prev.status !== "break") return prev;
-      const newElapsed   = prev.elapsed + 1;
-      const newRemaining = Math.max(prev.remaining - 1, 0);
+  const clearTick = useCallback(() => {
+    if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
+  }, []);
 
-      if (newRemaining === 0) {
-        clearTick();
-        // Phase complete
-        if (prev.status === "focusing") {
-          const actual_min = Math.floor((Date.now() - startTimeRef.current) / 60_000);
-          if (onComplete && prev.sessionId) onComplete(prev.sessionId, actual_min);
-          // Determine break type
-          const isLong = prev.sessionNumber % prefs.sessions_before_long_break === 0;
-          const breakSecs = (isLong ? prefs.long_break_duration : prefs.short_break_duration) * 60;
-          return {
-            ...prev,
-            status:    "break",
-            elapsed:   0,
-            remaining: breakSecs,
-            total:     breakSecs,
-            breakType: isLong ? "long" : "short",
-          };
-        } else {
-          // Break over → back to idle waiting for next session
-          onBreakEnd?.();
-          return {
-            ...prev,
-            status:        "idle",
-            elapsed:       0,
-            remaining:     prefs.pomodoro_duration * 60,
-            total:         prefs.pomodoro_duration * 60,
-            sessionNumber: prev.sessionNumber + 1,
-            breakType:     null,
-          };
+  const startTick = useCallback(() => {
+    clearTick();
+    tickRef.current = setInterval(() => {
+      setState((prev) => {
+        if (prev.status !== "focusing" && prev.status !== "break") {
+          // Wrong state — stop the interval
+          clearInterval(tickRef.current!);
+          tickRef.current = null;
+          return prev;
         }
-      }
 
-      return { ...prev, elapsed: newElapsed, remaining: newRemaining };
-    });
-  }, [prefs, onComplete, onBreakEnd]);
+        const newRemaining = Math.max(prev.remaining - 1, 0);
+        const newElapsed   = prev.elapsed + 1;
 
-  // Start focusing
+        if (newRemaining === 0) {
+          // Stop interval immediately
+          clearInterval(tickRef.current!);
+          tickRef.current = null;
+
+          if (prev.status === "focusing") {
+            const actual_min = Math.round((Date.now() - startTimeRef.current) / 60_000);
+            if (onCompleteRef.current && prev.sessionId) {
+              onCompleteRef.current(prev.sessionId, actual_min);
+            }
+            const p = prefsRef.current;
+            const isLong   = prev.sessionNumber % p.sessions_before_long_break === 0;
+            const breakSecs = (isLong ? p.long_break_duration : p.short_break_duration) * 60;
+            return {
+              ...prev,
+              status:    "break",
+              elapsed:   0,
+              remaining: breakSecs,
+              total:     breakSecs,
+              breakType: isLong ? "long" : "short",
+            };
+          } else {
+            // Break over
+            onBreakEndRef.current?.();
+            const p = prefsRef.current;
+            return {
+              ...prev,
+              status:        "idle",
+              elapsed:       0,
+              remaining:     p.pomodoro_duration * 60,
+              total:         p.pomodoro_duration * 60,
+              sessionNumber: prev.sessionNumber + 1,
+              breakType:     null,
+            };
+          }
+        }
+
+        return { ...prev, elapsed: newElapsed, remaining: newRemaining };
+      });
+    }, 1000);
+  }, [clearTick]);
+
+  // Auto-start tick when status transitions to "break"
+  useEffect(() => {
+    if (state.status === "break" && !tickRef.current) {
+      startTick();
+    }
+  }, [state.status, startTick]);
+
+  // Cleanup on unmount
+  useEffect(() => () => clearTick(), [clearTick]);
+
   const start = useCallback((sessionId: string) => {
     startTimeRef.current = Date.now();
     clearTick();
@@ -90,70 +123,55 @@ export function usePomodoro({ prefs, taskId, onComplete, onBreakEnd }: UsePomodo
       ...prev,
       status:    "focusing",
       elapsed:   0,
-      remaining: prefs.pomodoro_duration * 60,
-      total:     prefs.pomodoro_duration * 60,
+      remaining: prefsRef.current.pomodoro_duration * 60,
+      total:     prefsRef.current.pomodoro_duration * 60,
       sessionId,
     }));
-    tickRef.current = setInterval(tick, 1000);
-  }, [prefs.pomodoro_duration, tick]);
+    startTick();
+  }, [clearTick, startTick]);
 
-  // Pause
   const pause = useCallback(() => {
     clearTick();
     interruptRef.current += 1;
     setState((prev) => ({ ...prev, status: "paused" }));
-  }, []);
+  }, [clearTick]);
 
-  // Resume
   const resume = useCallback(() => {
     setState((prev) => ({ ...prev, status: "focusing" }));
-    tickRef.current = setInterval(tick, 1000);
-  }, [tick]);
+    startTick();
+  }, [startTick]);
 
-  // Skip break
   const skipBreak = useCallback(() => {
     clearTick();
     setState((prev) => ({
       ...prev,
       status:        "idle",
       elapsed:       0,
-      remaining:     prefs.pomodoro_duration * 60,
-      total:         prefs.pomodoro_duration * 60,
+      remaining:     prefsRef.current.pomodoro_duration * 60,
+      total:         prefsRef.current.pomodoro_duration * 60,
       sessionNumber: prev.sessionNumber + 1,
       breakType:     null,
     }));
-  }, [prefs.pomodoro_duration]);
+  }, [clearTick]);
 
-  // Abandon
   const abandon = useCallback(() => {
     clearTick();
     setState((prev) => ({ ...prev, status: "abandoned" }));
-  }, []);
+  }, [clearTick]);
 
-  // Reset
   const reset = useCallback(() => {
     clearTick();
     interruptRef.current = 0;
     setState({
       status:        "idle",
       elapsed:       0,
-      remaining:     prefs.pomodoro_duration * 60,
-      total:         prefs.pomodoro_duration * 60,
+      remaining:     prefsRef.current.pomodoro_duration * 60,
+      total:         prefsRef.current.pomodoro_duration * 60,
       sessionNumber: 1,
       breakType:     null,
       sessionId:     null,
     });
-  }, [prefs.pomodoro_duration]);
-
-  // Start break phase manually (if calling from outside)
-  useEffect(() => {
-    if (state.status === "break") {
-      clearTick();
-      tickRef.current = setInterval(tick, 1000);
-    }
-  }, [state.status, tick]);
-
-  useEffect(() => () => clearTick(), []);
+  }, [clearTick]);
 
   const progress = state.total > 0
     ? ((state.total - state.remaining) / state.total) * 100
